@@ -1,4 +1,4 @@
-//Bibliotheke
+//Bibliothek
 #include "Arduino.h"
 #include "SoftwareSerial.h"
 #include "DFRobotDFPlayerMini.h"
@@ -6,9 +6,6 @@
 SoftwareSerial mySoftwareSerial(12, 13); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
-
-
-
 
 
 // globale Variablen definitieon
@@ -45,17 +42,6 @@ void setup() {
   pinMode(S4rot, INPUT_PULLUP);
   pinMode(S5weiss, INPUT_PULLUP);
 
-
-  //LED-Test
-  digitalWrite(LEDblau, HIGH);
-
-  delay(1000);//
-
-  digitalWrite(LEDblau, LOW);
-
-
-
-
   mySoftwareSerial.begin(9600);
   Serial.begin(115200);
 
@@ -75,8 +61,8 @@ void setup() {
 
   //----Set volume----
   myDFPlayer.volume(10);  //Set volume value (0~30).
-  myDFPlayer.volumeUp(); //Volume Up
-  myDFPlayer.volumeDown(); //Volume Down
+  //myDFPlayer.volumeUp(); //Volume Up
+  //myDFPlayer.volumeDown(); //Volume Down
 
   //----Set different EQ----
   myDFPlayer.EQ(DFPLAYER_EQ_NORMAL);
@@ -149,7 +135,17 @@ void setup() {
   //myDFPlayer.playMp3Folder(1);
 
 
+  //LED-Test
+  digitalWrite(LEDblau, HIGH);
+
+  // windows start sound
+  myDFPlayer.playMp3Folder(7); 
+  
+  delay(4000);
+
+  digitalWrite(LEDblau, LOW);
 }
+
 void loop() {
   // put your main code here, to run repeatedly:
   Serial.print("Schalrter 2: ");
@@ -159,19 +155,16 @@ void loop() {
   Serial.print("Schalngenschalter: ");
   Serial.println(analogRead(S6schlange));
 
-
-
-
-
-
-
+  // Blue daba de baba dei
   if (digitalRead(S1blau) == 0) {
     digitalWrite (LEDblau, HIGH);
-
-
+    if (abspielen == 0) {
+      abspielen = 1;
+      myDFPlayer.playMp3Folder(8);
+    }
   }
-  else
-  { digitalWrite (LEDblau, LOW);
+  else {
+    digitalWrite (LEDblau, LOW);
   }
 
   //shwifty
@@ -180,29 +173,34 @@ void loop() {
     if (abspielen == 0) {
       abspielen = 1;
       myDFPlayer.playMp3Folder(4);
-      //myDFPlayer.play(4);
     }
   }
-  else
-  { digitalWrite (LEDgruen, LOW);
-
+  else {
+    digitalWrite (LEDgruen, LOW);
   }
 
-
-
+  //super hot
   if (digitalRead(S3gelb) == 0) {
     digitalWrite (LEDgelb, HIGH);
+    if (abspielen == 0) {
+      abspielen = 1;
+      myDFPlayer.playMp3Folder(5);
+    }
   }
-  else
-  { digitalWrite (LEDgelb, LOW);
+  else {
+    digitalWrite (LEDgelb, LOW);
   }
 
-
+  //run little girl
   if (digitalRead(S4rot) == 0) {
     digitalWrite (LEDrot, HIGH);
+    if (abspielen == 0) {
+      abspielen = 1;
+      myDFPlayer.playMp3Folder(6);
+    }
   }
-  else
-  { digitalWrite (LEDrot, LOW);
+  else {
+    digitalWrite (LEDrot, LOW);
   }
 
 
@@ -211,33 +209,48 @@ void loop() {
     if (abspielen == 0) {
       abspielen = 1;
       myDFPlayer.playMp3Folder(3);
-      //   myDFPlayer.play(2);
-      //      myDFPlayer.playFolder(1, 3); // in Ordner 01/003.mp3
     }
   }
-  else
-  { digitalWrite (LEDweiss, LOW);
+  else {
+    digitalWrite (LEDweiss, LOW);
   }
 
   if (abspielen == 0 && analogRead(S6schlange) > 500) {
     abspielen = 1;
     myDFPlayer.playMp3Folder(1);
-    //myDFPlayer.play(1); // Befehl bezieht sich auf die Reihenfolge, in der die Songs auf die SD-Karte kopiert wurden.
   }
 
 
   if (abspielen == 0 && analogRead(S7skipedi) > 500) {
     abspielen = 1;
     myDFPlayer.playMp3Folder(2);
-    //myDFPlayer.play(4);
 
   }
 
+  //party mode
+  if (digitalRead(S1blau) == 0 && digitalRead(S2gruen) == 0 && digitalRead(S3gelb) == 0 && digitalRead(S4rot) == 0 && digitalRead(S5weiss) == 0) {
+    myDFPlayer.pause();
+    delay(100);
+    myDFPlayer.playMp3Folder(9);
+
+    partyLoop();
+  }
+
   // Diese Bedingung muss um jeden zusätzlichen Schalter ergänzt werden, der Musik abspielen und dadurch auch stoppen soll.
-  if (abspielen == 1 && analogRead(S6schlange) < 500 && analogRead(S7skipedi) < 500 && digitalRead(S2gruen) == 1 && digitalRead(S5weiss) == 1) {
+  if (abspielen == 1 && analogRead(S6schlange) < 500 && analogRead(S7skipedi) < 500 && digitalRead(S1blau) == 1 && digitalRead(S2gruen) == 1 && digitalRead(S3gelb) == 1  && digitalRead(S4rot) == 1 && digitalRead(S5weiss) == 1) {
     abspielen = 0;
     myDFPlayer.pause();  //pause the mp3
   }
 
   delay(10);
+}
+
+void partyLoop() {
+  while (digitalRead(S1blau) == 0 && digitalRead(S2gruen) == 0 && digitalRead(S3gelb) == 0 && digitalRead(S4rot) == 0 && digitalRead(S5weiss) == 0) {
+    for (int i = 2; i < 7; i++) {
+      digitalWrite (i, HIGH);
+      delay(100);
+      digitalWrite (i, LOW);
+    }
+  }
 }
