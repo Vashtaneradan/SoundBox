@@ -6,9 +6,6 @@ name: CI Arduino
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: 
-    - main
-    - feature/actions
   pull_request:
     branches: 
     - main
@@ -27,9 +24,12 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        uses: Legion2/arduino-builder-action@v2.0.0
-        with:
-          board: "arduino:nano"
+      - uses: arduino/setup-arduino-cli@v1
+      - run: |
+          mkdir -p "$HOME/Arduino/libraries"
+          ln -s "$PWD" "$HOME/Arduino/libraries/."
+      - run: arduino-cli lib install "DFRobotDFPlayerMini@1.0.5"
+      - run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr@1.8.3
+      - run: arduino-cli compile --fqbn arduino:avr:nano:cpu=atmega328old . --warnings more
